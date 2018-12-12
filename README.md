@@ -1,4 +1,4 @@
-#es2rabbitmq
+# es2rabbitmq
 
 A cli script to enqueue ids of Elastic Search documents previous to a given date in RabbitMQ
 
