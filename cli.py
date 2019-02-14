@@ -23,6 +23,12 @@ parser.add_argument(
     dest="from_date",
     required=True,
     help="enqueue back to this date, string format, parsed by python-dateutil")
+parser.add_argument(
+    "-f",
+    "--force",
+    dest="force",
+    action="store_true",
+    help="force the procedure")
 
 args = parser.parse_args()
 
@@ -33,7 +39,7 @@ try:
     queue_name = RBMQ.get('QUEUE')
     channel = conn.channel()
     channel.queue_declare(queue=queue_name, durable=True)  # idempotent!
-# elasticsearch connection
+    # elasticsearch connection
     es = Elasticsearch(
         [ES.get('HOST')],
         http_auth=(ES.get('USERNAME'), ES.get('SECRET')),
@@ -55,7 +61,7 @@ try:
         }
     }
 
-    confirm = False
+    confirm = True if args.force else False
     total = es.count(
         index=index_current, doc_type='article', body={'query': query})
 
@@ -74,7 +80,7 @@ try:
         sys.exit(1)
 
     print("\nEnqueuing...")
-# es query
+    # es query
     request = scan(
         es, query={
             'query': query,
